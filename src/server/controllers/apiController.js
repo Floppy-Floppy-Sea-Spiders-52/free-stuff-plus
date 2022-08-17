@@ -19,7 +19,7 @@ const createErr = errInfo => {
 
 // This middleware function will send a query to retrieve all "unclaimed" items in the database and return an array of objects to the frontend to be displayed.
 apiController.getItems = async (req, res, next) => {
-  const queryStr = `SELECT * 
+  const queryStr = `SELECT *
     FROM item
     WHERE item.claimed = false;
   `;
@@ -61,7 +61,7 @@ apiController.addItem = async (req, res, next) => {
     const itemID = insertData.rows[0]._id;
 
     // query the tag table to get tag id from the tag name
-    const queryStrTag = `SELECT _id 
+    const queryStrTag = `SELECT _id
       FROM tag
       WHERE name=$1;
     `;
@@ -89,6 +89,7 @@ apiController.addItem = async (req, res, next) => {
   }
 };
 
+
 // This middleware function will be invoked when a request is made to the /api/tag endpoint. It will:
 // 1) Query 1 - Extract the tag sent from the frontend and make a query to retrieve the tag id
 // 2) Query 2 - Query for items that match that tag id by JOINING the item_table and tag_for_item join table
@@ -105,9 +106,9 @@ apiController.getItemByTag = async (req, res, next) => {
 
     // Get all items with input tag id from previous query
     const query2 = `
-    SELECT * 
-    FROM item i 
-    INNER JOIN tag_for_item tfi ON i._id = tfi.item_id 
+    SELECT *
+    FROM item i
+    INNER JOIN tag_for_item tfi ON i._id = tfi.item_id
     WHERE tag_id = $1;`;
     const params2 = [tagId];
     const data2 = await db.query(query2, params2);
@@ -151,6 +152,67 @@ apiController.updateItem = async (req, res, next) => {
       })
     );
   }
+
+};
+//Mak: controler/methods for login and signup
+
+apiController.createUser = async(req, res, next) => {
+  //console.log as a place holder to check if createUser method is working
+  console.log('createUser is working');
+  const { first_name, last_name, email, password } = req.body;
+  //check req.body object keys
+  console.log(req.body);
+  try {
+    const queryStr = `INSERT INTO users (first_name, last_name, email, password )
+    VALUES ($1, $2, $3, $4)`;
+    res.locals.id = email;
+    await db.query(query, [first_name, last_name, email, password]);
+    return next();
+  } catch (err) {
+    return next(
+      createErr({
+        method: 'createUser',
+        type: 'User exist or not correct format entered', //not sure of the right error message, discuss it with the team.
+        err,
+        status: 401,// 401 might be the right error code
+      })
+      );
+    }
+
+  };
+
+  apiController.getUser = async(req, res, next) => {
+    //console log to see if the method is working
+    console.log('getUser is working');
+    const { email, password } = req.body;
+    try {
+      const querStr = `
+  SELECT *
+  FROM email e
+  WHERE u.id = $1  `;
+      const result = await db.query(query, [email]);
+      if (result.rows.length === 0) {
+        console.log('no user in DB');
+        res.redirect('/signup');
+      } else {
+        console.log('check password');
+        if (result.rows[0].password === password) {
+          res.locals.id = result.rows[0].id;
+          return next();
+        } else {
+          res.redirect('/signup');
+        }
+      }
+    } catch (err) {
+      return next(
+        createErr({
+          method: 'createUser',
+          type: 'User does not exist', //not sure of the right error message, discuss it with the team.
+          err,
+          status: 401, // 401 might be the right error code
+        })
+      );
+    }
 };
 
 module.exports = apiController;
