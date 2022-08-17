@@ -3,7 +3,6 @@ import Sidebar from './Sidebar';
 import './app.scss';
 import PostsContainer from './PostsContainer';
 import NavBar from './NavBar'
-import styles from './add-item.scss';
 
 // Render: header/nav bar, sidebar component, posts container component, 
   // footer
