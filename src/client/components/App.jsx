@@ -1,32 +1,30 @@
-import React from 'react';
-import Sidebar from './Sidebar';
+import React, { useState, useEffect } from 'react';
 import './app.scss';
+import Sidebar from './Sidebar';
 import PostsContainer from './PostsContainer';
-import AuthPage from './AuthPage';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
-// Render: header/nav bar, sidebar component, posts container component, 
-  // footer
+const App = () => {
+  const [postsArray, setPostsArray] = useState([]);
 
-function App() {
+  useEffect(() => {
+    const getData = async () => {
+      const result = await fetch('/api');
+      const data = await result.json();
+      await setPostsArray(data);
+    };
+    getData();
+  }, []);
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<AuthPage />}/>
-        <Route path="home" element={
-          <div className='App'>
-            <div className="App__header">free stuff</div>
-            <div className="App__content">
-              <Sidebar/>
-              <PostsContainer/>
-            </div>
-            <div className="App__footer">
-            </div>
-          </div>
-        }/>
-      </Routes>
-    </BrowserRouter>
+    <div className='App'>
+      <div className="App__header">free stuff</div>
+      <div className="App__content">
+        <Sidebar/>
+        <PostsContainer postsArray={postsArray}/>
+      </div>
+      <div className="App__footer">
+      </div>
+    </div>
   );
 }
 
