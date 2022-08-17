@@ -21,13 +21,13 @@ router.post('/tag', apiController.getItemByTag, (req, res) =>
 
 // POST request for user login
 router.post('/login', apiController.getUser, (req, res) => {
-  res.status(200).json(res.locals.data)//maybe a different res key?
+  res.status(200).redirect('/whateveritis');//placeholder for now
 });
 
 // POST request for user signup
 
 router.post('/signup',apiController.createUser, (req,res) => {
-  (200).json(res.locals.data)//maybe a different res key?
+  res.status(200).redirect('/whateveritis'); //placeholder for now
 });
 
 // PATCH request for updating "claimed" status

@@ -159,14 +159,14 @@ apiController.updateItem = async (req, res, next) => {
 apiController.createUser = async(req, res, next) => {
   //console.log as a place holder to check if createUser method is working
   console.log('createUser is working');
-  const { username, password } = req.body;
+  const { first_name, last_name, email, password } = req.body;
   //check req.body object keys
   console.log(req.body);
   try {
-    const queryStr = `INSERT INTO users (id, password)
-    VALUES ($1, $2)`;
-    res.locals.id = username;
-    await db.query(query, [username, password]);
+    const queryStr = `INSERT INTO users (first_name, last_name, email, password )
+    VALUES ($1, $2, $3, $4)`;
+    res.locals.id = email;
+    await db.query(query, [first_name, last_name, email, password]);
     return next();
   } catch (err) {
     return next(
@@ -174,7 +174,7 @@ apiController.createUser = async(req, res, next) => {
         method: 'createUser',
         type: 'User exist or not correct format entered', //not sure of the right error message, discuss it with the team.
         err,
-        status: 500,// 401 might be the right error code
+        status: 401,// 401 might be the right error code
       })
       );
     }
@@ -184,13 +184,13 @@ apiController.createUser = async(req, res, next) => {
   apiController.getUser = async(req, res, next) => {
     //console log to see if the method is working
     console.log('getUser is working');
-    const { username, passowrd } = req.body;
+    const { email, password } = req.body;
     try {
       const querStr = `
   SELECT *
-  FROM users u
+  FROM email e
   WHERE u.id = $1  `;
-      await db.query(query, [username]);
+      const result = await db.query(query, [email]);
       if (result.rows.length === 0) {
         console.log('no user in DB');
         res.redirect('/signup');
@@ -209,7 +209,7 @@ apiController.createUser = async(req, res, next) => {
           method: 'createUser',
           type: 'User does not exist', //not sure of the right error message, discuss it with the team.
           err,
-          status: 500, // 401 might be the right error code
+          status: 401, // 401 might be the right error code
         })
       );
     }
