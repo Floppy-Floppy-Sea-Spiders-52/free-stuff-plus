@@ -22,6 +22,7 @@ const AuthForm = ({ signUpShown, sendUserData, toggleForm, authErrorOccurred }) 
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    // handling missing inputs since "required" attribute on MUI input fields do not appear to work
     if (signUpShown && (firstName === '' || lastName === '')) {
       return showInputError();
     } else if (email === '' || password === '') {

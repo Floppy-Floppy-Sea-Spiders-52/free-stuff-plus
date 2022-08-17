@@ -38,4 +38,9 @@ router.patch('/update-item', apiController.updateItem, (req, res) =>
 );
 //mahmoud post request to the login and post request to the sign up
 
+// for testing: get all users in db
+router.get('/accounts', apiController.getAllUsers, (req, res) => {
+  res.status(200).json(res.locals.users);
+});
+
 module.exports = router;

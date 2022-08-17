@@ -217,10 +217,10 @@ apiController.createUser = async (req, res, next) => {
   //check req.body object keys
   console.log(req.body);
   try {
-    const queryStr = `INSERT INTO users (first_name, last_name, email, password )
+    const queryStr = `INSERT INTO accounts (first_name, last_name, email, password)
     VALUES ($1, $2, $3, $4)`;
     res.locals.id = email;
-    await db.query(query, [first_name, last_name, email, password]);
+    await db.query(queryStr, [first_name, last_name, email, password]);
     return next();
   } catch (err) {
     return next(
@@ -240,11 +240,12 @@ apiController.getUser = async (req, res, next) => {
   console.log('getUser is working');
   const { email, password } = req.body;
   try {
-    const querStr = `
+    // select all from 'user' table where email is email from req 
+    const queryStr = `
   SELECT *
-  FROM email e
-  WHERE u.id = $1  `;
-    const result = await db.query(query, [email]);
+  FROM accounts
+  WHERE email = $1`;
+    const result = await db.query(queryStr, [email]);
     if (result.rows.length === 0) {
       console.log('no user in DB');
       // res.redirect('/signup');
@@ -270,5 +271,18 @@ apiController.getUser = async (req, res, next) => {
     );
   }
 };
+
+// for testing: helper func to get all users in DB right now
+apiController.getAllUsers = async (req, res, next) => {
+  try {
+    const queryStr = `SELECT * FROM accounts`;
+    const data = await db.query(queryStr);
+    console.log(data);
+    res.locals.users = data.rows;
+    return next();
+  } catch (err) {
+    return next(err);
+  }
+}
 
 module.exports = apiController;
