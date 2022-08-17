@@ -15,12 +15,17 @@ const AuthForm = ({ signUpShown, sendUserData, toggleForm, authErrorOccurred }) 
   const toggleText = signUpShown ? 'Already a user?' : 'Need an account?';
   const linkText = signUpShown ? 'LOG IN' : 'SIGN UP';
 
+  const showInputError = () => {
+    setInputIncomplete(true);
+    setTimeout(() => setInputIncomplete(false), 3000);
+  }
+
   const handleSubmit = (event) => {
     event.preventDefault();
     if (signUpShown && (firstName === '' || lastName === '')) {
-      return setInputIncomplete(true);
+      return showInputError();
     } else if (email === '' || password === '') {
-      return setInputIncomplete(true);
+      return showInputError();
     }
     const userData = {
       first_name: firstName,
@@ -30,23 +35,6 @@ const AuthForm = ({ signUpShown, sendUserData, toggleForm, authErrorOccurred }) 
     };
     sendUserData(userData);
   };
-
-  let errorMessage;
-  useEffect(() => {
-    if (authErrorOccurred) {
-      if (signUpShown) {
-        errorMessage = 'Account creation error. Please try again later'
-      } else {
-        errorMessage = 'Incorrect username or password.'
-      }
-    }
-    // display input incomplete error for 3 seconds
-    if (inputIncomplete) {
-      errorMessage = 'Please enter all required information.'
-      console.log(errorMessage);
-      setTimeout(() => setInputIncomplete(false), 3000);
-    }
-  }, [authErrorOccurred, inputIncomplete])
 
   return (
     <Box 
@@ -97,7 +85,20 @@ const AuthForm = ({ signUpShown, sendUserData, toggleForm, authErrorOccurred }) 
         onChange={(e) => setPassword(e.target.value)}
         required={true}
       />
-      {(authErrorOccurred || inputIncomplete) && <div className="ErrorMessage"><p>{errorMessage}</p></div>}
+      {
+        authErrorOccurred 
+          && !signUpShown 
+          && <div className="ErrorMessage"><p>Incorrect username or password.</p></div>
+      }
+      {
+        authErrorOccurred 
+          && signUpShown 
+          && <div className="ErrorMessage"><p>Account creation error.</p></div>
+      }
+      {
+        inputIncomplete
+          && <div className="ErrorMessage"><p>Please enter all required information.</p></div>
+      }
       <div className="ButtonContainer">
         <Button variant="contained" onClick={handleSubmit}>{labelText}</Button>
       </div>

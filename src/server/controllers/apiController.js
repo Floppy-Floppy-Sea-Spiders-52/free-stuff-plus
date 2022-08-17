@@ -247,14 +247,16 @@ apiController.getUser = async (req, res, next) => {
     const result = await db.query(query, [email]);
     if (result.rows.length === 0) {
       console.log('no user in DB');
-      res.redirect('/signup');
+      // res.redirect('/signup');
+      res.status(401).end();
     } else {
       console.log('check password');
       if (result.rows[0].password === password) {
         res.locals.id = result.rows[0].id;
         return next();
       } else {
-        res.redirect('/signup');
+        // res.redirect('/signup');
+        res.status(401).end();
       }
     }
   } catch (err) {

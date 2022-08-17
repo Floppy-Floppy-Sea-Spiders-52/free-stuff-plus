@@ -13,6 +13,10 @@ const AuthPage = () => {
     setSignUpShown(!signUpShown);
   };
 
+  const turnOffAuthErrorMessage = () => {
+    setAuthErrorOccurred(false);
+  }
+
   const sendUserData = async (userData) => {
     const options = {
       method: 'POST',
@@ -38,6 +42,7 @@ const AuthPage = () => {
     } catch (err) {
       // consider passing props down to form to display an error message! 
       setAuthErrorOccurred(true);
+      setTimeout(() => setAuthErrorOccurred(false), 3000);
       const errorType = signUpShown ? 'creation' : 'authentication' 
       console.log(`User ${errorType} failed:`, err);
     }
