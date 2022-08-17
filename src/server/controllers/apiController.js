@@ -96,24 +96,79 @@ apiController.addItem = async (req, res, next) => {
 
 apiController.getItemByTag = async (req, res, next) => {
   try {
-    // Get tag id
+    // Get tag id - currently works for a single tag
+    // Multiple tag attempt will be pre-empted with MT:
+    // assuming we receive an array of multiple tags from the frontend, tag will be an array of values
     const { tag } = req.body;
-    const query = 'SELECT * FROM tag t WHERE t.name = $1';
-    const params = [tag];
-    const data = await db.query(query, params);
-    const tagId = data.rows[0]._id;
+    // maybe we want an if else - if the tag request is just the length of one, we can keep current code
+    // else we'll need a separate codeset
+    const params = [...tag];
+    if (params.length === 1) {
+      const query = 'SELECT * FROM tag t WHERE t.name = $1';
+      const data = await db.query(query, params);
+      console.log(data)
+      const tagId = data.rows[0]._id;
+
+      const query2 = `
+      SELECT * 
+      FROM item i 
+      INNER JOIN tag_for_item tfi ON i._id = tfi.item_id 
+      WHERE tag_id = $1;`;
+      const params2 = [tagId];
+      const data2 = await db.query(query2, params2);
+
+      res.locals.data = data2.rows;
+      return next();
+    } else {
+      let query = `SELECT * FROM tag t WHERE t.name = $1`;
+      for (let i = 1; i < params.length; i++) {
+        query += ` UNION SELECT * FROM tag t WHERE t.name = $${i + 1}`
+      }
+      const data = await db.query(query, params);
+      console.log("Variable query result data", data);
+      const tagId = [];
+      for (let i = 0; i < data.rows.length; i++) {
+        console.log("data rows index i", data.rows[i]._id)
+        tagId.push(data.rows[i]._id);
+      }
+      
+      let query2 = `
+      SELECT name, description, date, claimed, quantity, imageurl 
+      FROM item i 
+      INNER JOIN tag_for_item tfi ON i._id = tfi.item_id 
+      WHERE tag_id = $1`;
+      const params2 = [...tagId];
+      console.log("params2", params2)
+      for (let i = 1; i < params2.length; i++) {
+        query2 += ` UNION 
+        SELECT name, description, date, claimed, quantity, imageurl 
+        FROM item i 
+        INNER JOIN tag_for_item tfi ON i._id = tfi.item_id
+        WHERE tag_id = $${i + 1}`;
+      }
+      const data2 = await db.query(query2, params2);
+      console.log("Q2", data2);
+
+      res.locals.data = data2.rows;
+      return next();
+    }
+    //PRIOR CODE
+    // const query = 'SELECT * FROM tag t WHERE t.name = $1';
+    // const params = [tag];
+    // const data = await db.query(query, params);
+    // const tagId = data.rows[0]._id;
 
     // Get all items with input tag id from previous query
-    const query2 = `
-    SELECT * 
-    FROM item i 
-    INNER JOIN tag_for_item tfi ON i._id = tfi.item_id 
-    WHERE tag_id = $1;`;
-    const params2 = [tagId];
-    const data2 = await db.query(query2, params2);
+    // const query2 = `
+    // SELECT * 
+    // FROM item i 
+    // INNER JOIN tag_for_item tfi ON i._id = tfi.item_id 
+    // WHERE tag_id = $1;`;
+    // const params2 = [tagId];
+    // const data2 = await db.query(query2, params2);
 
-    res.locals.data = data2.rows;
-    return next();
+    // res.locals.data = data2.rows;
+    // return next();
   } catch (err) {
     return next(
       createErr({
