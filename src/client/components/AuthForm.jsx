@@ -1,8 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import './auth-form.scss';
-import Box from '@mui/material/Box';
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
+import { Box, TextField, Button } from '@mui/material';
 
 const AuthForm = ({ signUpShown, sendUserData, toggleForm, authErrorOccurred }) => {
   const [firstName, setFirstName] = useState('');
@@ -15,6 +13,7 @@ const AuthForm = ({ signUpShown, sendUserData, toggleForm, authErrorOccurred }) 
   const toggleText = signUpShown ? 'Already a user?' : 'Need an account?';
   const linkText = signUpShown ? 'LOG IN' : 'SIGN UP';
 
+  // on incomplete input, display error message for 3 seconds
   const showInputError = () => {
     setInputIncomplete(true);
     setTimeout(() => setInputIncomplete(false), 3000);
@@ -57,7 +56,7 @@ const AuthForm = ({ signUpShown, sendUserData, toggleForm, authErrorOccurred }) 
             variant="standard"
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
-            required={true}
+            required
           />
           <TextField
             id="lastName"
@@ -65,7 +64,7 @@ const AuthForm = ({ signUpShown, sendUserData, toggleForm, authErrorOccurred }) 
             variant="standard"
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
-            required={true}
+            required
           />
         </React.Fragment>
       }
@@ -75,7 +74,7 @@ const AuthForm = ({ signUpShown, sendUserData, toggleForm, authErrorOccurred }) 
         variant="standard"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        required={true}
+        required
       />
       <TextField
         id="password"
@@ -84,7 +83,7 @@ const AuthForm = ({ signUpShown, sendUserData, toggleForm, authErrorOccurred }) 
         variant="standard"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
-        required={true}
+        required
       />
       {
         authErrorOccurred 

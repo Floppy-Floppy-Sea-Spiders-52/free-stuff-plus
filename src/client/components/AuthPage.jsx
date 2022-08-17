@@ -13,6 +13,8 @@ const AuthPage = () => {
     setSignUpShown(!signUpShown);
   };
 
+  // make post request to backend depending on origin of request (signup vs login)
+  // use react router to navigate to homepage upon successful signup/login
   const sendUserData = async (userData) => {
     const options = {
       method: 'POST',
@@ -36,8 +38,10 @@ const AuthPage = () => {
         navigate('/home', { state: { username: userData.email }});
       }
     } catch (err) {
+      // pass down prop to display error message for 3 seconds
       setAuthErrorOccurred(true);
       setTimeout(() => setAuthErrorOccurred(false), 3000);
+      // console log for testing during dev, can remove later
       const errorType = signUpShown ? 'creation' : 'authentication' 
       console.log(`User ${errorType} failed:`, err);
     }

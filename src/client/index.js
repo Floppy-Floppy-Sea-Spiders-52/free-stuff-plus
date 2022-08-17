@@ -16,6 +16,7 @@ const projectName = 'Free Stuff!';
 
 const root = createRoot(document.getElementById('root'));
 
+// set up routes to auth page and homepage
 root.render(
   <BrowserRouter>
     <Routes>
