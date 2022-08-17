@@ -6,6 +6,7 @@ import AuthForm from './AuthForm';
 // ugh gotta refactor to extract the dang form
 const AuthPage = () => {
   const [signUpShown, setSignUpShown] = useState(false);
+  const [authErrorOccurred, setAuthErrorOccurred] = useState(false);
   const navigate = useNavigate();
 
   const toggleForm = () => {
@@ -22,13 +23,13 @@ const AuthPage = () => {
     };
     try {
       if (signUpShown) {
-        const response = await fetch('/signup', options)
+        const response = await fetch('/api/signup', options)
         if (response.status !== 200 && response.status !== 201) {
           throw Error();
         }
         navigate('/home', { state: { username: userData.email }});
       } else {
-        const response = await fetch('/login', options);
+        const response = await fetch('/api/login', options);
         if (response.status !== 200 && response.status !== 201) {
           throw Error();
         }
@@ -36,6 +37,7 @@ const AuthPage = () => {
       }
     } catch (err) {
       // consider passing props down to form to display an error message! 
+      setAuthErrorOccurred(true);
       const errorType = signUpShown ? 'creation' : 'authentication' 
       console.log(`User ${errorType} failed:`, err);
     }
@@ -47,6 +49,7 @@ const AuthPage = () => {
         signUpShown={signUpShown}
         toggleForm={toggleForm}
         sendUserData={sendUserData}
+        authErrorOccurred={authErrorOccurred}
       />
     </div>
   );
