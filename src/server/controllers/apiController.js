@@ -7,9 +7,8 @@ const apiController = {};
 const createErr = errInfo => {
   const { method, type, err, status } = errInfo;
   return {
-    log: `apiController.${method} ${type}: ERROR: ${
-      typeof err === 'object' ? JSON.stringify(err) : err
-    }`,
+    log: `apiController.${method} ${type}: ERROR: ${typeof err === 'object' ? JSON.stringify(err) : err
+      }`,
     message: {
       err: `Error occurred in apiController.${method}. Check server logs for details.`,
     },
@@ -97,24 +96,79 @@ apiController.addItem = async (req, res, next) => {
 
 apiController.getItemByTag = async (req, res, next) => {
   try {
-    // Get tag id
+    // Get tag id - currently works for a single tag
+    // Multiple tag attempt will be pre-empted with MT:
+    // assuming we receive an array of multiple tags from the frontend, tag will be an array of values
     const { tag } = req.body;
-    const query = 'SELECT * FROM tag t WHERE t.name = $1';
-    const params = [tag];
-    const data = await db.query(query, params);
-    const tagId = data.rows[0]._id;
+    // maybe we want an if else - if the tag request is just the length of one, we can keep current code
+    // else we'll need a separate codeset
+    const params = [...tag];
+    if (params.length === 1) {
+      const query = 'SELECT * FROM tag t WHERE t.name = $1';
+      const data = await db.query(query, params);
+      console.log(data)
+      const tagId = data.rows[0]._id;
+
+      const query2 = `
+      SELECT * 
+      FROM item i 
+      INNER JOIN tag_for_item tfi ON i._id = tfi.item_id 
+      WHERE tag_id = $1;`;
+      const params2 = [tagId];
+      const data2 = await db.query(query2, params2);
+
+      res.locals.data = data2.rows;
+      return next();
+    } else {
+      let query = `SELECT * FROM tag t WHERE t.name = $1`;
+      for (let i = 1; i < params.length; i++) {
+        query += ` UNION SELECT * FROM tag t WHERE t.name = $${i + 1}`
+      }
+      const data = await db.query(query, params);
+      console.log("Variable query result data", data);
+      const tagId = [];
+      for (let i = 0; i < data.rows.length; i++) {
+        console.log("data rows index i", data.rows[i]._id)
+        tagId.push(data.rows[i]._id);
+      }
+
+      let query2 = `
+      SELECT name, description, date, claimed, quantity, imageurl 
+      FROM item i 
+      INNER JOIN tag_for_item tfi ON i._id = tfi.item_id 
+      WHERE tag_id = $1`;
+      const params2 = [...tagId];
+      console.log("params2", params2)
+      for (let i = 1; i < params2.length; i++) {
+        query2 += ` UNION 
+        SELECT name, description, date, claimed, quantity, imageurl 
+        FROM item i 
+        INNER JOIN tag_for_item tfi ON i._id = tfi.item_id
+        WHERE tag_id = $${i + 1}`;
+      }
+      const data2 = await db.query(query2, params2);
+      console.log("Q2", data2);
+
+      res.locals.data = data2.rows;
+      return next();
+    }
+    //PRIOR CODE
+    // const query = 'SELECT * FROM tag t WHERE t.name = $1';
+    // const params = [tag];
+    // const data = await db.query(query, params);
+    // const tagId = data.rows[0]._id;
 
     // Get all items with input tag id from previous query
-    const query2 = `
-    SELECT *
-    FROM item i
-    INNER JOIN tag_for_item tfi ON i._id = tfi.item_id
-    WHERE tag_id = $1;`;
-    const params2 = [tagId];
-    const data2 = await db.query(query2, params2);
+    // const query2 = `
+    // SELECT * 
+    // FROM item i 
+    // INNER JOIN tag_for_item tfi ON i._id = tfi.item_id 
+    // WHERE tag_id = $1;`;
+    // const params2 = [tagId];
+    // const data2 = await db.query(query2, params2);
 
-    res.locals.data = data2.rows;
-    return next();
+    // res.locals.data = data2.rows;
+    // return next();
   } catch (err) {
     return next(
       createErr({
@@ -156,7 +210,7 @@ apiController.updateItem = async (req, res, next) => {
 };
 //Mak: controler/methods for login and signup
 
-apiController.createUser = async(req, res, next) => {
+apiController.createUser = async (req, res, next) => {
   //console.log as a place holder to check if createUser method is working
   console.log('createUser is working');
   const { first_name, last_name, email, password } = req.body;
@@ -176,43 +230,43 @@ apiController.createUser = async(req, res, next) => {
         err,
         status: 401,// 401 might be the right error code
       })
-      );
-    }
+    );
+  }
 
-  };
+};
 
-  apiController.getUser = async(req, res, next) => {
-    //console log to see if the method is working
-    console.log('getUser is working');
-    const { email, password } = req.body;
-    try {
-      const querStr = `
+apiController.getUser = async (req, res, next) => {
+  //console log to see if the method is working
+  console.log('getUser is working');
+  const { email, password } = req.body;
+  try {
+    const querStr = `
   SELECT *
   FROM email e
   WHERE u.id = $1  `;
-      const result = await db.query(query, [email]);
-      if (result.rows.length === 0) {
-        console.log('no user in DB');
-        res.redirect('/signup');
+    const result = await db.query(query, [email]);
+    if (result.rows.length === 0) {
+      console.log('no user in DB');
+      res.redirect('/signup');
+    } else {
+      console.log('check password');
+      if (result.rows[0].password === password) {
+        res.locals.id = result.rows[0].id;
+        return next();
       } else {
-        console.log('check password');
-        if (result.rows[0].password === password) {
-          res.locals.id = result.rows[0].id;
-          return next();
-        } else {
-          res.redirect('/signup');
-        }
+        res.redirect('/signup');
       }
-    } catch (err) {
-      return next(
-        createErr({
-          method: 'createUser',
-          type: 'User does not exist', //not sure of the right error message, discuss it with the team.
-          err,
-          status: 401, // 401 might be the right error code
-        })
-      );
     }
+  } catch (err) {
+    return next(
+      createErr({
+        method: 'createUser',
+        type: 'User does not exist', //not sure of the right error message, discuss it with the team.
+        err,
+        status: 401, // 401 might be the right error code
+      })
+    );
+  }
 };
 
 module.exports = apiController;
