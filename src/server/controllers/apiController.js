@@ -8,8 +8,9 @@ const apiController = {};
 const createErr = errInfo => {
   const { method, type, err, status } = errInfo;
   return {
-    log: `apiController.${method} ${type}: ERROR: ${typeof err === 'object' ? JSON.stringify(err) : err
-      }`,
+    log: `apiController.${method} ${type}: ERROR: ${
+      typeof err === 'object' ? JSON.stringify(err) : err
+    }`,
     message: {
       err: `Error occurred in apiController.${method}. Check server logs for details.`,
     },
@@ -18,15 +19,24 @@ const createErr = errInfo => {
 };
 
 // This middleware function will send a query to retrieve all "unclaimed" items in the database and return an array of objects to the frontend to be displayed.
+// JO Updates 8/17 - Added Query string to send tags to frontend and subsequent fxnalitly to do so after db query
 apiController.getItems = async (req, res, next) => {
   const queryStr = `SELECT *
     FROM item
     WHERE item.claimed = false;
   `;
+  // query string for getting tags to send to frontend
+  const queryStrTags = `SELECT DISTINCT "tag"."name" FROM "tag"
+  JOIN "tag_for_item" ON "tag"."_id" = "tag_for_item"."tag_id"
+  JOIN "item" ON "item"."_id" = "tag_for_item"."item_id"
+  WHERE "item"."claimed" = false;`
+
   try {
     const data = await db.query(queryStr);
     // console.log('Data returned from get req to /api', data);
+    const tagData = await db.query(queryStrTags);
     res.locals.items = data.rows;
+    res.locals.tagData = tagData.rows;
     return next();
   } catch (err) {
     return next(
@@ -47,16 +57,19 @@ apiController.getItems = async (req, res, next) => {
 apiController.addItem = async (req, res, next) => {
   // need to discuss with front end - do they want to send a date?
   // or just use default date? (I WANT THIS!)
-  const { name, description, quantity, imageURL, tag } = req.body;
+  // JO 8/17 - Add email as an element to deconstruct from req body for purposes of associating added item w/ user
+  const { name, description, quantity, imageURL, tag, email } = req.body;
   // should we handle errors if the name (or other properties) are missing here? or on front end?
 
   try {
     // insert item to item table and return the item id
-    const queryStrInsert = `INSERT INTO item (name, description, quantity, imageURL)
-      VALUES ($1, $2, $3, $4)
+    // JO 8/17 - adding USER_ID, DATE and CLAIMED statuses into our query string and into our values syntax ($5, $6)
+    const queryStrInsert = `INSERT INTO item (user_id, name, description, quantity, imageURL, date, claimed)
+      VALUES (
+        (SELECT accounts._id FROM accounts WHERE accounts.email = $1), $2, $3, $4, $5, $6, $7)
       RETURNING _id;
     `;
-    const insertValues = [name, description, quantity, imageURL];
+    const insertValues = [email, name, description, quantity, imageURL, new Date(), false];
     const insertData = await db.query(queryStrInsert, insertValues);
     const itemID = insertData.rows[0]._id;
 
@@ -103,56 +116,46 @@ apiController.getItemByTag = async (req, res, next) => {
     const { tag } = req.body;
     // maybe we want an if else - if the tag request is just the length of one, we can keep current code
     // else we'll need a separate codeset
-    const params = [...tag];
-    if (params.length === 1) {
-      const query = 'SELECT * FROM tag t WHERE t.name = $1';
-      const data = await db.query(query, params);
-      console.log(data)
-      const tagId = data.rows[0]._id;
+    // JO 8/16 - Added if else statement and subsequent code to handle single tag vs multi tag getitembytag requests
+    // JO 8/17 - Removed if else statements for DRY purposes and added for loops to handle multi tag situations
+    const params = Array.isArray(tag) ? tag : [tag];
+    console.log("params", params);
+    let query = `SELECT * FROM tag t WHERE t.name = $1`;
+    // for loop below handles case where params contains > 1 tag (not currently implemented but stretch goal)
+    for (let i = 1; i < params.length; i++) {
+      query += ` UNION SELECT * FROM tag t WHERE t.name = $${i + 1}`
+    }
+    const data = await db.query(query, params);
+    console.log("Tag data ", data);
+    // below for loop handles single and mult tag searches (multi tag not yet implemented - stretch goal)
+    const tagId = [];
+    for (let i = 0; i < data.rows.length; i++) {
+      console.log("data rows index i", data.rows[i]._id)
+      tagId.push(data.rows[i]._id);
+    }
+    console.log("TagId", tagId);
 
-      const query2 = `
+    let query2 = `
       SELECT *
       FROM item i
       INNER JOIN tag_for_item tfi ON i._id = tfi.item_id
-      WHERE tag_id = $1;`;
-      const params2 = [tagId];
-      const data2 = await db.query(query2, params2);
+      WHERE tag_id = $1`;
 
-      res.locals.data = data2.rows;
-      return next();
-    } else {
-      let query = `SELECT * FROM tag t WHERE t.name = $1`;
-      for (let i = 1; i < params.length; i++) {
-        query += ` UNION SELECT * FROM tag t WHERE t.name = $${i + 1}`
-      }
-      const data = await db.query(query, params);
-      console.log("Variable query result data", data);
-      const tagId = [];
-      for (let i = 0; i < data.rows.length; i++) {
-        console.log("data rows index i", data.rows[i]._id)
-        tagId.push(data.rows[i]._id);
-      }
-
-      let query2 = `
+    const params2 = tagId;
+    console.log("Params2", params2);
+    // below for loop handles multi tag searches (not yet implemented - stretch goal);
+    for (let i = 1; i < params2.length; i++) {
+      query2 += ` UNION
       SELECT name, description, date, claimed, quantity, imageurl
       FROM item i
       INNER JOIN tag_for_item tfi ON i._id = tfi.item_id
-      WHERE tag_id = $1`;
-      const params2 = [...tagId];
-      console.log("params2", params2)
-      for (let i = 1; i < params2.length; i++) {
-        query2 += ` UNION
-        SELECT name, description, date, claimed, quantity, imageurl
-        FROM item i
-        INNER JOIN tag_for_item tfi ON i._id = tfi.item_id
-        WHERE tag_id = $${i + 1}`;
-      }
-      const data2 = await db.query(query2, params2);
-      console.log("Q2", data2);
-
-      res.locals.data = data2.rows;
-      return next();
+      WHERE tag_id = $${i + 1}`;
     }
+    const data2 = await db.query(query2, params2);
+    console.log("data2", data2);
+    res.locals.data = data2.rows;
+    return next();
+
     //PRIOR CODE
     // const query = 'SELECT * FROM tag t WHERE t.name = $1';
     // const params = [tag];
@@ -211,7 +214,7 @@ apiController.updateItem = async (req, res, next) => {
 };
 //Mak: controler/methods for login and signup
 
-apiController.createUser = async (req, res, next) => {
+apiController.createUser = async(req, res, next) => {
   //console.log as a place holder to check if createUser method is working
   console.log('createUser is working');
   const { first_name, last_name, email, password } = req.body;
@@ -266,16 +269,9 @@ apiController.getUser = async (req, res, next) => {
       //   res.status(401).end()
       // }
     }
-  } catch (err) {
-    return next(
-      createErr({
-        method: 'createUser',
-        type: 'User does not exist', //not sure of the right error message, discuss it with the team.
-        err,
-        status: 401, // 401 might be the right error code
-      })
-    );
-  }
+}catch(err){
+  res.status(401).end();
+}
 };
 
 module.exports = apiController;

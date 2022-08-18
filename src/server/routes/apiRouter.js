@@ -20,7 +20,7 @@ router.get(
   '/',
   apiController.getItems,
   cookieController.setCookie,
-  (req, res) => res.status(200).json(res.locals.items)
+  (req, res) => res.status(200).json({ items: res.locals.items, tags: res.locals.tagData})
 );
 
 // POST request for adding items
