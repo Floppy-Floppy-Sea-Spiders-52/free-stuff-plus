@@ -23,10 +23,9 @@ const App = () => {
     const getData = async () => {
       const result = await fetch('/api');
       const data = await result.json();
-      await setPostsArray(data);
-      // await setFilters(data.map(post => post.tag));
-      // need backend revision so that each 'get' to '/' also gives list of tags on the returned items
-      // this is b/c tags do not live on items table 
+      const { items, tags } = data;
+      await setPostsArray(items);
+      await setFilters(tags);
     };
     getData();
   }, [claimedCount, itemCardCounter]);

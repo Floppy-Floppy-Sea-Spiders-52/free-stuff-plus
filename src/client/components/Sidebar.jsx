@@ -24,6 +24,7 @@ const defaultFilters = ['scissors', 'paper', 'tape', 'glue', 'marker', 'book', '
 export default function Sidebar({ setPosts, filters = defaultFilters }) {
   const [selectedFilters, setSelectedFilters] = useState([]); //this line probably needs editing
   //console.log('selectedFilters:', selectedFilters);
+  const processedFilters = filters.map(obj => obj.name);
   const handleCheck = (e) => {
     setSelectedFilters(prev => {
       if (e.target.checked) { // check if checkbox is being activated or deactivated
@@ -67,7 +68,7 @@ export default function Sidebar({ setPosts, filters = defaultFilters }) {
       <button type="button">find stuff</button>
       <FormGroup>
         {
-          filters.map((filter, index) => (
+          processedFilters.map((filter, index) => (
             <FormControlLabel key={index} onChange={handleCheck} control={<Checkbox 
               size="small" 
               color="default" sx={{ '& .MuiSvgIcon-root': { fontSize: 14 } }}/>} label={filter} />

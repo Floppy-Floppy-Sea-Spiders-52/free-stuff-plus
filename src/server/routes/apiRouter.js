@@ -9,10 +9,10 @@ const { application } = require('express');
 
 
 
-//test my cookies
-router.get('/', function (req, res) {
-  res.cookie('name', 'express').send('cookie set'); //Sets name = express
-});
+// //test my cookies
+// router.get('/', function (req, res) {
+//   res.cookie('name', 'express').send('cookie set'); //Sets name = express
+// });
 
 
 // GET request for all unclaimed items

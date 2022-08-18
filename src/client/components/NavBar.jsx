@@ -30,6 +30,7 @@ const NavBar = ({ incrementCounter, email }) => {
   const handleClose = () => setIsOpen(false);
   const handleOpen = () => setIsOpen(true);
 
+  // When user clicks submit, invoke handleAddItemSubmit to 
   const handleAddItemSubmit = async (e) => {
     e.preventDefault();
     console.log('invoked?');
@@ -42,6 +43,7 @@ const NavBar = ({ incrementCounter, email }) => {
       email
     };
     try {
+      // POST to backend the data submitted from user
       console.log('item data:', formData);
       const response = await fetch('/api/add-item', {
         method: 'POST',
