@@ -196,7 +196,7 @@ apiController.updateItem = async (req, res, next) => {
   const { _id: item_id } = req.body;
   const query = 'UPDATE item SET claimed = $1 WHERE item._id = $2';
   const params = [true, item_id];
-
+  console.log(params);
   try {
     await db.query(query, params);
     return next();
@@ -226,7 +226,6 @@ apiController.createUser = async(req, res, next) => {
     res.locals.id = email;
     const hash = await bcrypt.hash(password, 10);
     await db.query(queryStr, [first_name, last_name, email, hash]);
-
     return next();
   } catch (err) {
     return next(
@@ -274,4 +273,17 @@ apiController.getUser = async (req, res, next) => {
 }
 };
 
+// for testing: helper func to get all users in DB right now
+apiController.getAllUsers = async (req, res, next) => {
+  try {
+    const queryStr = `SELECT * FROM accounts`;
+    const data = await db.query(queryStr);
+    console.log(data);
+    res.locals.users = data.rows;
+    return next();
+  } catch (err) {
+    return next(err);
+  }
+}
+ 
 module.exports = apiController;

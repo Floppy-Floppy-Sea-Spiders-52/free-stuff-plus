@@ -1,0 +1,33 @@
+
+
+button {
+  width: 150px;
+  height: 30px;
+  background-color: #145da0;
+  border: 2px, solid, #6da2c1;
+  border-radius: 2px;
+  color: white;
+  font-family: "Roboto";
+  font-size: 16px;
+}
+
+.NavBar {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  background-color: #145DA0;
+  font-family: 'Roboto';
+  font-size: 34px;
+  padding: 15px;
+}
+
+.Title {
+  color: white;
+  position: absolute;
+  margin-left: auto;
+  margin-right: auto;
+  left: 0;
+  right: 0;
+  text-align: center;
+}
+

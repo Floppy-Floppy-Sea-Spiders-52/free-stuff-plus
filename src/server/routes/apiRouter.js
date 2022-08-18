@@ -35,7 +35,6 @@ router.post('/tag', apiController.getItemByTag, (req, res) =>
 
 // POST request for user login
 router.post('/login', apiController.getUser, cookieController.setCookie, (req, res) => {
-
   res.status(200).end();
 });
 
@@ -55,5 +54,10 @@ router.patch('/update-item', apiController.updateItem, (req, res) =>
   res.status(200).send('Item claimed')
 );
 //mahmoud post request to the login and post request to the sign up
+
+// for testing: get all users in db
+router.get('/accounts', apiController.getAllUsers, (req, res) => {
+  res.status(200).json(res.locals.users);
+});
 
 module.exports = router;

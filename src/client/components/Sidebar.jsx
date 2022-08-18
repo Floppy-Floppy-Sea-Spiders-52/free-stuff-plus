@@ -39,6 +39,7 @@ export default function Sidebar({ setPosts, filters = defaultFilters }) {
       console.log('selectedFilters', selectedFilters)
     if (selectedFilters.length > 0) {
       const param = {}
+      // ... is tag supposed to be one tag or array of tags... ? 
       selectedFilters.forEach((filter) => {
         param.tag = filter
       });
@@ -60,14 +61,14 @@ export default function Sidebar({ setPosts, filters = defaultFilters }) {
   }, [selectedFilters])
 
 
-
+  // added index as key for now to stop error; probably not best practice & could use nanoid or other alternative
   return (
     <div className='Checkbox__form'>
       <button type="button">find stuff</button>
       <FormGroup>
         {
-          filters.map((filter) => (
-            <FormControlLabel onChange={handleCheck} control={<Checkbox 
+          filters.map((filter, index) => (
+            <FormControlLabel key={index} onChange={handleCheck} control={<Checkbox 
               size="small" 
               color="default" sx={{ '& .MuiSvgIcon-root': { fontSize: 14 } }}/>} label={filter} />
           ))
