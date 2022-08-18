@@ -10,7 +10,7 @@ const style = {
   left: '50%',
   transform: 'translate(-50%, -50%)',
   width: 300,
-  height: 400,
+  height: 350,
   bgcolor: 'background.paper',
   border: '3px sold #000',
   boxShadow: 24,
@@ -67,7 +67,7 @@ const NavBar = ({ incrementCounter, email }) => {
     return (
       <div className='NavBar'>
         <div className='Title'>free stuff</div>
-        <Button onClick={handleOpen} sx={{ color: 'white' }}>Add Item</Button>
+        <Button onClick={handleOpen} sx={{ color: 'white', mx: 2, 'text-transform': 'none', 'font-size': '15px' }}>add item</Button>
         <Modal
           open={isOpen}
           onClose={handleClose}
@@ -79,7 +79,7 @@ const NavBar = ({ incrementCounter, email }) => {
               <Typography id='modal-modal-title' variant='h6' component='h2'>
                 Please fill out form to add item
               </Typography>
-              <Typography id='modal-modal-description' sx={{ mt: 2 }}>
+              <Typography id='modal-modal-description' sx={{ mt: 2, mx: 8 }}>
                 <TextField
                   id='url'
                   label='Picture Url'
@@ -116,7 +116,7 @@ const NavBar = ({ incrementCounter, email }) => {
                   onChange={(e) => setDescription(e.target.value)}
                 />
               </Typography>
-              <Button variant='contained' onClick={handleAddItemSubmit}>Submit</Button>
+              <Button variant='contained' sx={{ my: 4, mx: 13 }} onClick={handleAddItemSubmit}>Submit</Button>
             </Box>
           </div>
         </Modal>
