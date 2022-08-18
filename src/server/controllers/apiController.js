@@ -254,11 +254,11 @@ apiController.getUser = async (req, res, next) => {
       console.log('no user in DB');
       res.status(401).end();
     } else {
-      const isPassword = await bcrypt.compare(password, account.hash);
+      const isPassword = await bcrypt.compare(password, result.rows[0].password);
       if(isPassword){
         res.status(201).json('valid email and password');
       }else{
-        res.send('wrong email or/and password')
+        res.status(401).send('wrong email or/and password')
       }
       // console.log('check password');
       // if (result.rows[0].password === password) {

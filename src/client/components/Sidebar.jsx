@@ -21,54 +21,84 @@ import axios from 'axios';
 
 const defaultFilters = ['scissors', 'paper', 'tape', 'glue', 'marker', 'book', 'chalk', 'covid mask', 'name tag', 'hole puncher', 'pencil', 'toy', 'globe', 'miscellaneous', 'grades K-5', 'grades 6-8', 'grades 9-12', 'child proof', 'new', 'used'];
 
-export default function Sidebar({ setPosts, filters = defaultFilters }) {
+export default function Sidebar({ setPosts, filters = defaultFilters, getData }) {
   const [selectedFilters, setSelectedFilters] = useState([]); //this line probably needs editing
   //console.log('selectedFilters:', selectedFilters);
+  const processedFilters = filters.map(obj => obj.name);
+
+  // for MVP, we are limiting to filtering by one tag only
   const handleCheck = (e) => {
     setSelectedFilters(prev => {
-      if (e.target.checked) { // check if checkbox is being activated or deactivated
-        return [...prev, e.target.label]; //if so, return the spread previous state array of checked (selected) filters, and add checked filter
+      if (e.target.checked) {
+        return [e.target.value];
+      } else {
+        return [];
       }
-      return prev.filter((selectedFilter) => selectedFilter !== e.target.label); //filter any unchecked boxes out of selectedFilter arr  
     })
   };
 
-  // the post request expects an object with a tag property assigned to the value of a tag string on the req.body
-  useEffect(() => {
-    async function getItemsByFilter() {
-      console.log('selectedFilters', selectedFilters)
-    if (selectedFilters.length > 0) {
-      const param = {}
-      // ... is tag supposed to be one tag or array of tags... ? 
-      selectedFilters.forEach((filter) => {
-        param.tag = filter
-      });
-      //console.log('param', param)
-      const body = await axios.post('/api/tag', param);
-      console.log(body)
-      setPosts(body);
+  // for MVP: rather than automatically filtering upon checking a tag, 
+  // will use 'find stuff' button to make api call & update data
+
+  const filterItems = async (e) => {
+    e.preventDefault();
+    console.log(selectedFilters);
+    if (!selectedFilters.length) {
+      getData();
       return;
     } 
+    const param = { tag: [...selectedFilters]};
+    console.log(param);
+    const body = await axios.post('/api/tag', param);
+    setPosts(body.data);
+  }
+
+  // original goblin shark code:
+  // const handleCheck = (e) => {
+  //   setSelectedFilters(prev => {
+  //     if (e.target.checked) { // check if checkbox is being activated or deactivated
+  //       return [...prev, e.target.label]; //if so, return the spread previous state array of checked (selected) filters, and add checked filter
+  //     }
+  //     return prev.filter((selectedFilter) => selectedFilter !== e.target.label); //filter any unchecked boxes out of selectedFilter arr  
+  //   })
+  // };
+
+  // the post request expects an object with a tag property assigned to the value of a tag string on the req.body
+  // useEffect(() => {
+  //   async function getItemsByFilter() {
+  //     console.log('selectedFilters', selectedFilters)
+  //   if (selectedFilters.length > 0) {
+  //     const param = {}
+  //     // ... is tag supposed to be one tag or array of tags... ? 
+  //     selectedFilters.forEach((filter) => {
+  //       param.tag = filter
+  //     });
+  //     //console.log('param', param)
+  //     const body = await axios.post('/api/tag', param);
+  //     console.log(body)
+  //     setPosts(body);
+  //     return;
+  //   } 
     
    // this was intended to manipulate state of posts; to work, setPosts should probably be defined in app and passed down as props here and in posts
    
    // const body = await axios.get('/api/tag');
    // console.log('body', body);
    // setPosts(body);
-  }
-    getItemsByFilter()
+  // }
+  //   getItemsByFilter()
   
-  }, [selectedFilters])
+  // }, [selectedFilters])
 
 
   // added index as key for now to stop error; probably not best practice & could use nanoid or other alternative
   return (
     <div className='Checkbox__form'>
-      <button type="button">find stuff</button>
+      <button onClick={filterItems} type="button">find stuff</button>
       <FormGroup>
         {
-          filters.map((filter, index) => (
-            <FormControlLabel key={index} onChange={handleCheck} control={<Checkbox 
+          processedFilters.map((filter, index) => (
+            <FormControlLabel key={index} value={filter} onChange={handleCheck} control={<Checkbox 
               size="small" 
               color="default" sx={{ '& .MuiSvgIcon-root': { fontSize: 14 } }}/>} label={filter} />
           ))

@@ -5,7 +5,8 @@ import './posts-container.scss'
 // converting to functional component for consistency
 
 const PostsContainer = ({ postsArray, incrementClaimedCount }) => {
-  
+  postsArray.sort((a, b) => b._id - a._id);
+
   const claimItem = async (id) => {
     const options = {
       method: 'PATCH',
@@ -25,7 +26,8 @@ const PostsContainer = ({ postsArray, incrementClaimedCount }) => {
     }
   };
 
-  const truncatedPostObjsArr = postsArray.slice(0,10);
+  // const truncatedPostObjsArr = postsArray.slice(0,10);
+  const truncatedPostObjsArr = postsArray.slice();
   let componentsArr = [];
   
   truncatedPostObjsArr.forEach((postObj) => {

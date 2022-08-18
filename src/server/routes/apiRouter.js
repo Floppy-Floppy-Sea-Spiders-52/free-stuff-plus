@@ -9,10 +9,10 @@ const { application } = require('express');
 
 
 
-//test my cookies
-router.get('/', function (req, res) {
-  res.cookie('name', 'express').send('cookie set'); //Sets name = express
-});
+// //test my cookies
+// router.get('/', function (req, res) {
+//   res.cookie('name', 'express').send('cookie set'); //Sets name = express
+// });
 
 
 // GET request for all unclaimed items
@@ -25,7 +25,7 @@ router.get(
 
 // POST request for adding items
 router.post('/add-item', apiController.addItem, (req, res) =>
-  res.status(200).send('Item added')
+  res.status(200).json('Item added')
 );
 
 // POST request for selecting tag
