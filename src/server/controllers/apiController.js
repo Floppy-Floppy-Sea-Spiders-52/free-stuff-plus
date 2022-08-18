@@ -1,5 +1,6 @@
 const express = require('express');
 const db = require('../models/freeStuffModel');
+const bcrypt = require('bcrypt');
 
 const apiController = {};
 
@@ -110,9 +111,9 @@ apiController.getItemByTag = async (req, res, next) => {
       const tagId = data.rows[0]._id;
 
       const query2 = `
-      SELECT * 
-      FROM item i 
-      INNER JOIN tag_for_item tfi ON i._id = tfi.item_id 
+      SELECT *
+      FROM item i
+      INNER JOIN tag_for_item tfi ON i._id = tfi.item_id
       WHERE tag_id = $1;`;
       const params2 = [tagId];
       const data2 = await db.query(query2, params2);
@@ -133,16 +134,16 @@ apiController.getItemByTag = async (req, res, next) => {
       }
 
       let query2 = `
-      SELECT name, description, date, claimed, quantity, imageurl 
-      FROM item i 
-      INNER JOIN tag_for_item tfi ON i._id = tfi.item_id 
+      SELECT name, description, date, claimed, quantity, imageurl
+      FROM item i
+      INNER JOIN tag_for_item tfi ON i._id = tfi.item_id
       WHERE tag_id = $1`;
       const params2 = [...tagId];
       console.log("params2", params2)
       for (let i = 1; i < params2.length; i++) {
-        query2 += ` UNION 
-        SELECT name, description, date, claimed, quantity, imageurl 
-        FROM item i 
+        query2 += ` UNION
+        SELECT name, description, date, claimed, quantity, imageurl
+        FROM item i
         INNER JOIN tag_for_item tfi ON i._id = tfi.item_id
         WHERE tag_id = $${i + 1}`;
       }
@@ -160,9 +161,9 @@ apiController.getItemByTag = async (req, res, next) => {
 
     // Get all items with input tag id from previous query
     // const query2 = `
-    // SELECT * 
-    // FROM item i 
-    // INNER JOIN tag_for_item tfi ON i._id = tfi.item_id 
+    // SELECT *
+    // FROM item i
+    // INNER JOIN tag_for_item tfi ON i._id = tfi.item_id
     // WHERE tag_id = $1;`;
     // const params2 = [tagId];
     // const data2 = await db.query(query2, params2);
@@ -217,10 +218,12 @@ apiController.createUser = async (req, res, next) => {
   //check req.body object keys
   console.log(req.body);
   try {
-    const queryStr = `INSERT INTO users (first_name, last_name, email, password )
+    const queryStr = `INSERT INTO accounts (first_name, last_name, email, password )
     VALUES ($1, $2, $3, $4)`;
     res.locals.id = email;
-    await db.query(query, [first_name, last_name, email, password]);
+    const hash = await bcrypt.hash(password, 10);
+    await db.query(queryStr, [first_name, last_name, email, hash]);
+
     return next();
   } catch (err) {
     return next(
@@ -240,22 +243,28 @@ apiController.getUser = async (req, res, next) => {
   console.log('getUser is working');
   const { email, password } = req.body;
   try {
-    const querStr = `
+    const queryStr = `
   SELECT *
-  FROM email e
-  WHERE u.id = $1  `;
-    const result = await db.query(query, [email]);
+  FROM accounts
+  WHERE email = $1  `;
+    const result = await db.query(queryStr, [email]);
     if (result.rows.length === 0) {
       console.log('no user in DB');
-      res.redirect('/signup');
+      res.status(401).end();
     } else {
-      console.log('check password');
-      if (result.rows[0].password === password) {
-        res.locals.id = result.rows[0].id;
-        return next();
-      } else {
-        res.redirect('/signup');
+      const isPassword = await bcrypt.compare(password, account.hash);
+      if(isPassword){
+        res.status(201).json('valid email and password');
+      }else{
+        res.send('wrong email or/and password')
       }
+      // console.log('check password');
+      // if (result.rows[0].password === password) {
+      //   res.locals.id = result.rows[0].id;
+      //   return next();
+      // } else {
+      //   res.status(401).end()
+      // }
     }
   } catch (err) {
     return next(

@@ -1,6 +1,10 @@
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
+
+// Require in cookies
+const cookieController = require('./controllers/cookieController');
 
 // Require in routers
 const apiRouter = require('./routes/apiRouter');
@@ -15,6 +19,7 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
+app.use(cookieParser());
 
 app.use(express.static(path.resolve(__dirname, '../../dist')));
 
