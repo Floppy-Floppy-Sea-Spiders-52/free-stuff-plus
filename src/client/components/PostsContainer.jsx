@@ -25,7 +25,8 @@ const PostsContainer = ({ postsArray, incrementClaimedCount }) => {
     }
   };
 
-  const truncatedPostObjsArr = postsArray.slice(0,10);
+  // const truncatedPostObjsArr = postsArray.slice(0,10);
+  const truncatedPostObjsArr = postsArray.slice();
   let componentsArr = [];
   
   truncatedPostObjsArr.forEach((postObj) => {

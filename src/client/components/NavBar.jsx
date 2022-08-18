@@ -30,7 +30,7 @@ const NavBar = ({ incrementCounter, email }) => {
   const handleClose = () => setIsOpen(false);
   const handleOpen = () => setIsOpen(true);
 
-  // When user clicks submit, invoke handleAddItemSubmit to 
+  // When user clicks submit, invoke handleAddItemSubmit 
   const handleAddItemSubmit = async (e) => {
     e.preventDefault();
     console.log('invoked?');

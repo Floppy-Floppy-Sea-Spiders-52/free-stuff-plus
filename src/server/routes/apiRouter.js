@@ -25,7 +25,7 @@ router.get(
 
 // POST request for adding items
 router.post('/add-item', apiController.addItem, (req, res) =>
-  res.status(200).send('Item added')
+  res.status(200).json('Item added')
 );
 
 // POST request for selecting tag

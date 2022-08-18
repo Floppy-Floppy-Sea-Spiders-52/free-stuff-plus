@@ -24,6 +24,8 @@ const App = () => {
       const result = await fetch('/api');
       const data = await result.json();
       const { items, tags } = data;
+      items.sort((a, b) => a._id - b._id);
+      console.log(items);
       await setPostsArray(items);
       await setFilters(tags);
     };
