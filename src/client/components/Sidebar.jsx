@@ -39,6 +39,7 @@ export default function Sidebar({ setPosts, filters = defaultFilters }) {
       console.log('selectedFilters', selectedFilters)
     if (selectedFilters.length > 0) {
       const param = {}
+      // ... is tag supposed to be one tag or array of tags... ? 
       selectedFilters.forEach((filter) => {
         param.tag = filter
       });

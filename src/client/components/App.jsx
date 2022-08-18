@@ -27,27 +27,6 @@ const App = () => {
     getData();
   }, [claimedCount]);
 
-  /* NAVBAR
-
-  formdata = {} 
-  onClick = {handleClick}
-  handleClick = () => {
-    // make backend request to add to DB (async)
-    // sendItemData ( send data to app )
-  }
-
-  APP -- gets data... 
-  sendItemData {
-    alter some state "X"
-      could be item data itself
-      or counter variable saying how many items user added in this session
-  }
-
-  APP useEffect {
-    // refreshes with new DB data and rerender
-  }, [ "X" ]
-
-  */
   // increment number of items user has claimed in order to re-render page & remove claimed item card
   // could be used in future to add user-related functionality 
   // (e.g a user account page with history and stats)

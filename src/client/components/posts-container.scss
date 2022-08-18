@@ -1,4 +1,6 @@
 .PostsContainer {
-  margin-left: 60px;
-  margin-top: 30px;
+  // margin-left: 60px;
+  // margin-top: 30px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(350px, 1fr));
 }

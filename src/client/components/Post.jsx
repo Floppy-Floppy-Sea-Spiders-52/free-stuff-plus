@@ -1,8 +1,6 @@
 import React from 'react';
 import './post.scss';
 
-// this is a *functional* component (not a class component) because it's not stateful
-
 const Post = ({ name, description, date, quantity, imageurl, id, claimItem }) => {
   return (
     <div className="Post">
@@ -25,8 +23,5 @@ const Post = ({ name, description, date, quantity, imageurl, id, claimItem }) =>
     </div>
   )
 };
-
-
-
 
 export default Post;
