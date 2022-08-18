@@ -2,12 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import './app.scss';
 import Sidebar from './Sidebar';
+import NavBar from './NavBar';
 import PostsContainer from './PostsContainer';
+
 
 const App = () => {
   const [postsArray, setPostsArray] = useState([]);
   const [filters, setFilters] = useState([]);
   const [claimedCount, setClaimedCount] = useState(0);
+  const [itemCardCounter, setItemCardCounter] = useState(0);
 
   // save email of logged in user for future requests
   const location = useLocation();
@@ -25,7 +28,12 @@ const App = () => {
       // this is b/c tags do not live on items table 
     };
     getData();
-  }, [claimedCount]);
+  }, [claimedCount, itemCardCounter]);
+
+  // increment card counter (how many cards user added in this session) to trigger re-render to include new card
+  const incrementCounter = () => {
+    setItemCardCounter(itemCardCounter + 1);
+  }
 
   // increment number of items user has claimed in order to re-render page & remove claimed item card
   // could be used in future to add user-related functionality 
@@ -45,7 +53,8 @@ const App = () => {
 
   return (
     <div className='App'>
-      <div className="App__header">free stuff</div>
+      {/* <div className="App__header">free stuff</div> */}
+      <NavBar incrementCounter={incrementCounter} className="App__header"/>
       <div className="App__content">
         <Sidebar filters={filters} setPosts={setPosts}/>
         <PostsContainer postsArray={postsArray} incrementClaimedCount={incrementClaimedCount}/>
