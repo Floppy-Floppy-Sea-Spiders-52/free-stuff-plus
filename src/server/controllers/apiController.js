@@ -192,7 +192,7 @@ apiController.updateItem = async (req, res, next) => {
   const { _id: item_id } = req.body;
   const query = 'UPDATE item SET claimed = $1 WHERE item._id = $2';
   const params = [true, item_id];
-
+  console.log(params);
   try {
     await db.query(query, params);
     return next();
