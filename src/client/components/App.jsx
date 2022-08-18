@@ -21,8 +21,8 @@ function App() {
     return (
     <div>
       <div className='App'>
-        <div className="App__header">free stuff</div>
-        <NavBar incrementCounter={incrementCounter} />
+        {/* <div className="App__header">free stuff</div> */}
+        <NavBar incrementCounter={incrementCounter} className="App__header"/>
         <div className="App__content">
           <Sidebar/>
           <PostsContainer />

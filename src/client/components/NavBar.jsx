@@ -9,9 +9,10 @@ const style = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: 500,
+  width: 300,
+  height: 400,
   bgcolor: 'background.paper',
-  border: '2px sold #000',
+  border: '3px sold #000',
   boxShadow: 24,
   p: 4,
 };
@@ -63,7 +64,7 @@ const NavBar = ({ incrementCounter }) => {
     // return
     return (
       <div className='NavBar'>
-        <Button onClick={handleOpen}>Add Item</Button>
+        <Button onClick={handleOpen} sx={{ color: 'white' }}>Add Item</Button>
         <Modal
           open={isOpen}
           onClose={handleClose}
@@ -112,7 +113,7 @@ const NavBar = ({ incrementCounter }) => {
                   onChange={(e) => setDescription(e.target.value)}
                 />
               </Typography>
-              <Button onClick={handleAddItemSubmit}>Submit</Button>
+              <Button variant='contained' onClick={handleAddItemSubmit}>Submit</Button>
             </Box>
           </div>
         </Modal>
