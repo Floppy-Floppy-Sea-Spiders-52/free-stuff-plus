@@ -19,7 +19,7 @@ const style = {
 
 // add error handling after you get main function working
 
-const NavBar = ({ incrementCounter }) => {
+const NavBar = ({ incrementCounter, email }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [nameOfItem, setNameOfItem] = useState('');
   const [tag, setTag] = useState('');
@@ -39,6 +39,7 @@ const NavBar = ({ incrementCounter }) => {
       tag,
       quantity,
       description,
+      email
     };
     try {
       console.log('item data:', formData);
@@ -49,13 +50,12 @@ const NavBar = ({ incrementCounter }) => {
         },
         body: JSON.stringify(formData),
       });
-      // pass filled out form back to app
+      // if item added successfully, increment a counter in App to re-render page with new item
       const newItemData = await response.json();
       console.log('backend data :', newItemData);
       if (newItemData === 'Item added') {
         incrementCounter();
       }
-      //     incrementCounter(newItemData);
       handleClose();
     } catch (error) {
       console.log('Fetching error is :', error);
@@ -64,6 +64,7 @@ const NavBar = ({ incrementCounter }) => {
     // return
     return (
       <div className='NavBar'>
+        <div className='Title'>free stuff</div>
         <Button onClick={handleOpen} sx={{ color: 'white' }}>Add Item</Button>
         <Modal
           open={isOpen}

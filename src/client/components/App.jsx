@@ -18,6 +18,7 @@ const App = () => {
 
   // moved DB call for all items here so we can pass props to each child component as needed
   // will trigger re-render on item addition & item being claimed
+  // unfortunately this triggers two DB queries right now on load...
   useEffect(() => {
     const getData = async () => {
       const result = await fetch('/api');
@@ -54,7 +55,7 @@ const App = () => {
   return (
     <div className='App'>
       {/* <div className="App__header">free stuff</div> */}
-      <NavBar incrementCounter={incrementCounter} className="App__header"/>
+      <NavBar incrementCounter={incrementCounter} email={email} className="App__header"/>
       <div className="App__content">
         <Sidebar filters={filters} setPosts={setPosts}/>
         <PostsContainer postsArray={postsArray} incrementClaimedCount={incrementClaimedCount}/>
