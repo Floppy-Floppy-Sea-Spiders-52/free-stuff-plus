@@ -1,1 +1,7 @@
-GET http://localhost:8080/tag
+POST http://localhost:8080/login
+Content-Type: application/json
+
+{
+    "email": "test@test.com",
+    "password": "test1"
+}
