@@ -1,0 +1,38 @@
+.FormContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+p {
+  font-family: 'Roboto', sans-serif;
+  margin-left: 10px;
+}
+
+.ButtonContainer {
+  margin-top: 25px;
+  margin-left: auto;
+  margin-right: 8px;
+}
+
+button {
+  width: 90px;
+}
+
+.ToggleText {
+  margin-top: 15px;
+  margin-left: -2px;
+}
+
+a {
+  text-decoration: underline;
+}
+
+a:hover {
+  color: #1a76d2;
+  cursor: pointer;
+}
+
+.ErrorMessage {
+  color: red;
+  background-color: teal;
+}
