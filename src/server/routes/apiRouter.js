@@ -6,7 +6,7 @@ const apiController = require('../controllers/apiController');
 
 // GET request for all unclaimed items
 router.get('/', apiController.getItems, (req, res) =>
-  res.status(200).json(res.locals.items)
+  res.status(200).json({ items: res.locals.items, tags: res.locals.tagData})
 );
 
 // POST request for adding items
