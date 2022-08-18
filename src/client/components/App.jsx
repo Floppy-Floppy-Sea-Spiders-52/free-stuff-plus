@@ -16,19 +16,21 @@ const App = () => {
   const location = useLocation();
   const email = location.state.username;
 
+  // extracting the getData function so can pass down to sidebar (for filtering when no tags checked)
+  const getData = async () => {
+    const result = await fetch('/api');
+    const data = await result.json();
+    const { items, tags } = data;
+    // items.sort((a, b) => b._id - a._id);
+    // console.log(items);
+    await setPostsArray(items);
+    await setFilters(tags);
+  };
+
   // moved DB call for all items here so we can pass props to each child component as needed
   // will trigger re-render on item addition & item being claimed
   // unfortunately this triggers two DB queries right now on load...
   useEffect(() => {
-    const getData = async () => {
-      const result = await fetch('/api');
-      const data = await result.json();
-      const { items, tags } = data;
-      items.sort((a, b) => a._id - b._id);
-      console.log(items);
-      await setPostsArray(items);
-      await setFilters(tags);
-    };
     getData();
   }, [claimedCount, itemCardCounter]);
 
@@ -58,7 +60,7 @@ const App = () => {
       {/* <div className="App__header">free stuff</div> */}
       <NavBar incrementCounter={incrementCounter} email={email} className="App__header"/>
       <div className="App__content">
-        <Sidebar filters={filters} setPosts={setPosts}/>
+        <Sidebar filters={filters} setPosts={setPosts} getData={getData}/>
         <PostsContainer postsArray={postsArray} incrementClaimedCount={incrementClaimedCount}/>
       </div>
       <div className="App__footer">
