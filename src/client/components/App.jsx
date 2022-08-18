@@ -8,11 +8,12 @@ import NavBar from './NavBar'
   // footer
 
 function App() {
+  const [ itemData, setItemData ] = useState({});
     return (
     <div>
       <div className='App'>
         <div className="App__header">free stuff</div>
-        <NavBar />
+        <NavBar setItemData={setItemData}/>
         <div className="App__content">
           <Sidebar/>
           <PostsContainer/>
