@@ -3,10 +3,24 @@ const router = express.Router();
 
 // require in apiController middleware
 const apiController = require('../controllers/apiController');
+const cookieController = require('../controllers/cookieController');
+const cookieParser = require('cookie-parser');
+const { application } = require('express');
+
+
+
+//test my cookies
+router.get('/', function (req, res) {
+  res.cookie('name', 'express').send('cookie set'); //Sets name = express
+});
+
 
 // GET request for all unclaimed items
-router.get('/', apiController.getItems, (req, res) =>
-  res.status(200).json({ items: res.locals.items, tags: res.locals.tagData})
+router.get(
+  '/',
+  apiController.getItems,
+  cookieController.setCookie,
+  (req, res) => res.status(200).json({ items: res.locals.items, tags: res.locals.tagData})
 );
 
 // POST request for adding items
@@ -20,15 +34,21 @@ router.post('/tag', apiController.getItemByTag, (req, res) =>
 );
 
 // POST request for user login
-router.post('/login', apiController.getUser, (req, res) => {
-  res.status(200).redirect('/whateveritis');//placeholder for now
+router.post('/login', apiController.getUser, cookieController.setCookie, (req, res) => {
+
+  res.status(200).end();
 });
 
 // POST request for user signup
 
-router.post('/signup',apiController.createUser, (req,res) => {
-  res.status(200).redirect('/whateveritis'); //placeholder for now
-});
+router.post(
+  '/signup',
+  apiController.createUser,
+  cookieController.setCookie,
+  (req, res) => {
+    res.status(200).end();
+  }
+);
 
 // PATCH request for updating "claimed" status
 router.patch('/update-item', apiController.updateItem, (req, res) =>
